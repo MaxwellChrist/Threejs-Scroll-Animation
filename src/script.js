@@ -38,7 +38,9 @@ const material = new THREE.MeshToonMaterial({
 })
 
 // Meshes
-const objectsDistance = 3.5
+const objectsDistanceX = 2.5
+const objectsDistanceY = 5
+
 const mesh1 = new THREE.Mesh(
     new THREE.TorusGeometry(1, 0.4, 16),
     material
@@ -52,9 +54,14 @@ const mesh3 = new THREE.Mesh(
     material
 )
 
-mesh1.position.y = -(objectsDistance * 0)
-mesh2.position.y = -(objectsDistance * 1)
-mesh3.position.y = -(objectsDistance * 2)
+mesh1.position.x = (objectsDistanceX)
+mesh1.position.y = -(objectsDistanceY * 0)
+
+mesh2.position.x = -(objectsDistanceX)
+mesh2.position.y = -(objectsDistanceY * 1)
+
+mesh3.position.x = (objectsDistanceX )
+mesh3.position.y = -(objectsDistanceY * 2)
 
 scene.add(mesh1, mesh2, mesh3)
 
@@ -93,10 +100,14 @@ window.addEventListener('resize', () =>
 /**
  * Camera
  */
+// Group
+const cameraGroup = new THREE.Group()
+scene.add(cameraGroup)
+
 // Base camera
 const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height, 0.1, 100)
 camera.position.z = 6
-scene.add(camera)
+cameraGroup.add(camera)
 
 /**
  * Renderer
@@ -109,13 +120,47 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
+ * Scroll
+ */
+let scrollY = window.scrollY
+window.addEventListener('scroll', e => {
+    scrollY = window.scrollY
+})
+
+/**
+ * Cursor
+ */
+const cursor = {
+    x: 0,
+    y: 0
+}
+window.addEventListener('mousemove', e => {
+    cursor.x = (e.clientX / sizes.width) - 0.5
+    cursor.y = (e.clientY / sizes.height) - 0.5
+    console.log(cursor)
+
+})
+
+/**
  * Animate
  */
 const clock = new THREE.Clock()
+let previousTime = 0
 
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+    const delta = elapsedTime - previousTime
+    previousTime = elapsedTime
+
+    // Animate camera
+    camera.position.y = -scrollY/sizes.height * objectsDistanceY
+
+    // Parallax
+    const parallaxX = cursor.x * 0.5
+    const parallaxY = -cursor.y * 0.5
+    cameraGroup.position.x += (parallaxX - cameraGroup.position.x) * 4 * delta
+    cameraGroup.position.y += (parallaxY - cameraGroup.position.y) * 4 * delta
 
     // Animate meshes
     for (let mesh of sectionMeshes) {
