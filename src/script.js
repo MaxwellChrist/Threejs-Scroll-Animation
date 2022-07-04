@@ -8,10 +8,14 @@ import * as dat from 'lil-gui'
 const gui = new dat.GUI()
 
 const parameters = {
-    materialColor: '#440D0F'
+    materialColor: '#ff0008'
 }
 
-gui.addColor(parameters, 'materialColor').onChange(() => material.color.set(parameters.materialColor))
+gui.addColor(parameters, 'materialColor').onChange(() => {
+    material.color.set(parameters.materialColor),
+    particleMaterial.color.set(parameters.materialColor)
+
+})
 
 /**
  * Base
@@ -66,6 +70,26 @@ mesh3.position.y = -(objectsDistanceY * 2)
 scene.add(mesh1, mesh2, mesh3)
 
 const sectionMeshes = [mesh1, mesh2, mesh3]
+
+/**
+ * Particles
+ */
+const ParticleCount = 500
+const positions = new Float32Array(ParticleCount * 3)
+for (let i = 0; i < ParticleCount; i++) {
+    positions[i * 3 + 0] = (Math.random() - 0.5) * 10
+    positions[i * 3 + 1] = objectsDistanceY * 0.5 - Math.random() * objectsDistanceY * sectionMeshes.length
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10
+}
+const particlesGeometry = new THREE.BufferGeometry()
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+const particleMaterial = new THREE.PointsMaterial({
+    color: parameters.materialColor,
+    sizeAttenuation: true,
+    size: 0.03
+})
+const particles = new THREE.Points(particlesGeometry, particleMaterial)
+scene.add(particles)
 
 /**
  * Lights
@@ -137,8 +161,6 @@ const cursor = {
 window.addEventListener('mousemove', e => {
     cursor.x = (e.clientX / sizes.width) - 0.5
     cursor.y = (e.clientY / sizes.height) - 0.5
-    console.log(cursor)
-
 })
 
 /**
