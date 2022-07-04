@@ -4,15 +4,14 @@
     padding: 0;
 }
 
-html,
-body
-{
-    overflow: hidden;
+html {    
+    background: #191716
 }
 
 .webgl
 {
-    position: fixed;
+    /* position of fixed allows canvas to stay infront of viewport. Absolute does not*/
+    position: fixed; 
     top: 0;
     left: 0;
     outline: none;
